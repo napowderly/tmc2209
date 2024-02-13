@@ -91,29 +91,42 @@ module TMC2209:
     internal_5v_cap = new Capacitor
     internal_5v_cap.value = 2.2uF +/- 20%
     internal_5v_cap.package = "0402"
+    internal_5v_cap.1 ~ ic._5VOUT
+    internal_5v_cap.2 ~ power.gnd
 
     #VCC_IO
     vcc_io_cap = new Capacitor
     vcc_io_cap.value = 100nF +/- 20%
     vcc_io_cap.package = "0402"
+    vcc_io_cap.1 ~ ic.VCC_IO
+    vcc_io_cap.2 ~ power.gnd
 
     # Breaking resistors
     br1 = new Resistor
     br1.value = 120mohm +/- 20%
+    br1.package = "0805"
+    br1.1 ~ ic.BRA
+    br1.2 ~ power.gnd
 
     br2 = new Resistor
     br2.value = 120mohm +/- 20%
+    br2.package = "0805"
+    br2.1 ~ ic.BRB
+    br2.2 ~ power.gnd
 
     # Standby pin
     standby = new Resistor
     standby.value = 100kohm +/- 20%
     standby.1 ~ ic.STDBY
     standby.2 ~ power.gnd
+    standby.package = "0402"
 
     # CP0 and CP1 cap
     cp0_1 = new Capacitor
     cp0_1.value = 22nF +/- 20%
     cp0_1.voltage = 50V to 100V
+    cp0_1.1 ~ ic.CPO
+    cp0_1.2 ~ ic.CPI
 
     # VCP cap
     vcp = new Capacitor

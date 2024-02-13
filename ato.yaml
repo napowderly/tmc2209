@@ -1,6 +1,6 @@
 ato-version: ^0.2.0
 builds:
   default:
-    entry: elec/src/tmc2209.ato:Tmc2209
+    entry: elec/src/tmc2209.ato:TMC2209
 dependencies:
 - generics

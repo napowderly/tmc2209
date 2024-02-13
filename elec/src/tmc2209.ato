@@ -1,2 +1,123 @@
-module Tmc2209:
-    signal gnd
+import Power from "generics/interfaces.ato"
+import UART from "generics/interfaces.ato"
+import STEP_DIR from "generics/interfaces.ato"
+import STEPPER_MOTOR from "generics/interfaces.ato"
+
+import Capacitor from "generics/capacitors.ato"
+import Resistor from "generics/resistors.ato"
+import Diode from "generics/diodes.ato"
+import LEDIndicatorGreen from "generics/leds.ato"
+
+component TMC2209_LA:
+    # component TMC2209-LA
+    footprint = "QFN-28_L5.0-W5.0-P0.50-BL-EP"
+    lcsc_id = "C465949"
+    mpn = "C465949"
+    # pins
+    signal OB2 ~ pin 1
+    signal ENN ~ pin 2
+    signal GND ~ pin 3
+    signal CPO ~ pin 4
+    signal CPI ~ pin 5
+    signal VCP ~ pin 6
+    signal SPREAD ~ pin 7
+    signal _5VOUT ~ pin 8
+    signal MS1_AD0 ~ pin 9
+    signal MS2_AD1 ~ pin 10
+    signal DIAG ~ pin 11
+    signal INDEX ~ pin 12
+    signal CLK ~ pin 13
+    signal PDN_UART ~ pin 14
+    signal VCC_IO ~ pin 15
+    signal STEP ~ pin 16
+    signal VREF ~ pin 17
+    GND ~ pin 18
+    signal DIR ~ pin 19
+    signal STDBY ~ pin 20
+    signal OA2 ~ pin 21
+    signal VS ~ pin 22
+    signal BRA ~ pin 23
+    signal OA1 ~ pin 24
+    signal OB1 ~ pin 26
+    signal BRB ~ pin 27
+    VS ~ pin 28
+    GND ~ pin 29
+
+module _input_cap from Capacitor:
+    # Input capacitor
+    value = 2.2uF +/- 20%
+    voltage = 50V to 100V
+
+module TMC2209:
+    ic = new TMC2209_LA
+    power = new Power
+    uart = new UART
+    step_dir = new STEP_DIR
+
+    # Power interface
+    power.vcc ~ ic.VS
+    power.gnd ~ ic.GND
+
+    # Step/Dir interface
+    step_dir.step ~ ic.STEP
+    step_dir.dir ~ ic.DIR
+
+    # UART interface
+    uart_resistor = new Resistor
+    uart_resistor.value = 1kohm +/- 20%
+    uart_resistor.package = "0402"
+    uart.tx ~ uart_resistor.1; uart_resistor.2 ~ ic.PDN_UART
+    uart.rx ~ ic.PDN_UART
+
+    #Motor interface
+    motor_output = new STEPPER_MOTOR
+    motor_output.a1 ~ ic.OA1
+    motor_output.a2 ~ ic.OA2
+    motor_output.b1 ~ ic.OB1
+    motor_output.b2 ~ ic.OB2
+
+    # Input caps
+    input_cap1 = new _input_cap
+    input_cap2 = new _input_cap
+    input_cap1.power ~ power
+    input_cap2.power ~ power
+
+    # Indicator LED
+    led = new LEDIndicatorGreen
+    led.input ~ ic.DIAG
+    led.gnd ~ power.gnd
+
+    # 5v internal rail
+    internal_5v_cap = new Capacitor
+    internal_5v_cap.value = 2.2uF +/- 20%
+    internal_5v_cap.package = "0402"
+
+    #VCC_IO
+    vcc_io_cap = new Capacitor
+    vcc_io_cap.value = 100nF +/- 20%
+    vcc_io_cap.package = "0402"
+
+    # Breaking resistors
+    br1 = new Resistor
+    br1.value = 120mohm +/- 20%
+
+    br2 = new Resistor
+    br2.value = 120mohm +/- 20%
+
+    # Standby pin
+    standby = new Resistor
+    standby.value = 100kohm +/- 20%
+    standby.1 ~ ic.STDBY
+    standby.2 ~ power.gnd
+
+    # CP0 and CP1 cap
+    cp0_1 = new Capacitor
+    cp0_1.value = 22nF +/- 20%
+    cp0_1.voltage = 50V to 100V
+
+    # VCP cap
+    vcp = new Capacitor
+    vcp.value = 100nF +/- 20%
+    vcp.voltage = 50V to 100V
+    vcp.1 ~ ic.VCP
+    vcp.2 ~ power.vcc

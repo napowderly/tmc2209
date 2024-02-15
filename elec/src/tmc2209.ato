@@ -2,6 +2,7 @@ import Power from "generics/interfaces.ato"
 import UART from "generics/interfaces.ato"
 import STEP_DIR from "generics/interfaces.ato"
 import STEPPER_MOTOR from "generics/interfaces.ato"
+import Pair from "generics/interfaces.ato"
 
 import Capacitor from "generics/capacitors.ato"
 import Resistor from "generics/resistors.ato"
@@ -53,6 +54,7 @@ module TMC2209:
     power = new Power
     uart = new UART
     step_dir = new STEP_DIR
+    enable = new Pair
 
     # Power interface
     power.vcc ~ ic.VS
@@ -61,6 +63,17 @@ module TMC2209:
     # Step/Dir interface
     step_dir.step ~ ic.STEP
     step_dir.dir ~ ic.DIR
+
+    # Enable pin - low = enabled, high = disabled
+    enable_resistor = new Resistor
+    enable_resistor.value = 100kohm +/- 20%
+    enable_resistor.package = "0402"
+    ic.ENN ~ enable_resistor.1; enable_resistor.2 ~ power.gnd
+    enable.io ~ ic.ENN
+    enable.gnd ~ power.gnd
+
+    # SPREAD pin LOw = StealthChop, high = SpreadCycle
+    ic.SPREAD ~ power.gnd # StealthChop
 
     # UART interface
     uart_resistor = new Resistor
